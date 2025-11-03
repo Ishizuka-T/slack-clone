@@ -1,18 +1,23 @@
-import { Link } from 'react-router-dom';
-import './auth.css';
-import { useState } from 'react';
-import { authRepository } from '../../modules/auth/auth.repository.ts';
+import { Link, Navigate } from "react-router-dom";
+import "./auth.css";
+import { useState } from "react";
+import { authRepository } from "../../modules/auth/auth.repository.ts";
+import { useCurrentUserStore } from "../../modules/auth/current-user.state.ts";
 
 function Signup() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { currentUser, setCurrentUser } = useCurrentUserStore();
 
   const signup = async () => {
-    if (name == '' || email == ''|| password == '') return;
+    if (name == "" || email == "" || password == "") return;
     const { user, token } = await authRepository.signup(name, email, password);
-    console.log(user, token)
+    localStorage.setItem("token", token);
+    setCurrentUser(user);
   };
+
+  if (currentUser != null) return <Navigate to="/" />;
 
   return (
     <div className="signup-container">
@@ -27,7 +32,7 @@ function Signup() {
             <input
               type="text"
               placeholder="Full name"
-              value = {name}
+              value={name}
               onChange={(e) => setName(e.target.value)}
               required
             />
@@ -37,7 +42,7 @@ function Signup() {
             <input
               type="email"
               placeholder="Email"
-              value = {email}
+              value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
@@ -47,7 +52,7 @@ function Signup() {
             <input
               type="password"
               placeholder="Password"
-              value = {password}
+              value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
@@ -55,8 +60,9 @@ function Signup() {
           <button
             type="submit"
             className="continue-button"
-            disabled = {name == '' || email == ''|| password == ''}
-            onClick={signup}>
+            disabled={name == "" || email == "" || password == ""}
+            onClick={signup}
+          >
             Continue
           </button>
         </div>
